@@ -7,6 +7,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
+import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.stream.ChunkedWriteHandler;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +25,15 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
     private final ChunkedWriteHandler chunkedWriteHandler;
     private final WebSocketServerProtocolHandler webSocketServerProtocolHandler;
     private final WebSocketFrameHandler webSocketFrameHandler;
+    private final WebSocketServerCompressionHandler webSocketServerCompressionHandler;
 
     public WebSocketServerInitializer(HttpServerCodec httpServerCodec,
                                       HttpObjectAggregator httpObjectAggregator,
                                       ChunkedWriteHandler chunkedWriteHandler,
                                       WebSocketServerProtocolHandler webSocketServerProtocolHandler,
-                                      WebSocketFrameHandler webSocketFrameHandler) {
+                                      WebSocketFrameHandler webSocketFrameHandler,
+                                      WebSocketServerCompressionHandler webSocketServerCompressionHandler) {
+        this.webSocketServerCompressionHandler = webSocketServerCompressionHandler;
         this.sslCtx = null;
         this.httpServerCodec = httpServerCodec;
         this.httpObjectAggregator = httpObjectAggregator;
@@ -47,6 +51,7 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         pipeline.addLast(httpServerCodec);
         pipeline.addLast(httpObjectAggregator);
         pipeline.addLast(chunkedWriteHandler);
+        pipeline.addLast(webSocketServerCompressionHandler);
         pipeline.addLast(webSocketServerProtocolHandler);
         pipeline.addLast(webSocketFrameHandler);
     }
